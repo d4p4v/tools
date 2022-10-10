@@ -21,7 +21,7 @@ function Hook.__new(self, params)
 
     if params["Type"] == nil then return error("[HOOK] :: Invalid params.") end
 
-    local old; old = hookmetamethod(game, tostring(params.Type), function(this, ...)
+    local old; old = hookmetamethod(game, tostring(params.Type), newcclosure(function(this, ...)
         local args = {...}
 
         --#region CHECKS
@@ -36,17 +36,13 @@ function Hook.__new(self, params)
         --#region HOOK
 
         if hook.active then
-            if params.Type == Hook.Type.Index then
-                return params.Func()
-            end
-
-            return old(this, params.Func(args))
+            return params.Func(old, this, args)
         end
 
         --#endregion HOOK
 
         return old(this, unpack(args))
-    end)
+    end))
 
     hook.old = old
     return hook
